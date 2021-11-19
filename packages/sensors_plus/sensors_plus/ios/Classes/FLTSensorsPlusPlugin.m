@@ -235,24 +235,17 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 						bool success;
 
-						float viewport[4];
-						viewport[0] = 0.0f;
-						viewport[1] = 0.0f;
-						viewport[2] = 500.0/2.0; 	// self.view.frame.size.width;
-						viewport[3] = 500.0/2.0; 	// self.view.frame.size.height;
-
-						float viewport1[4];
-						viewport[0] = 0.0f;
-						viewport[1] = 0.0f;
-						viewport[2] = 0.0;
-						viewport[3] = 500/2.0;
+						int viewport[4];
+						viewport[0] = 0;
+						viewport[1] = 0;
+						viewport[2] = 500; 	// self.view.frame.size.width;
+						viewport[3] = 500; 	// self.view.frame.size.height;
 
 						//
 						// assume center pixel of this view.
 						// 
 						// near point =
 						GLKVector3 calculatedPoint = GLKMathUnproject(window_coord, modelView, projectionMatrix, viewport, &success);
-
 						GLKVector3 calculatedPoint1 = GLKMathUnproject(window_coord1, modelView, projectionMatrix, viewport1, &success);
 
 						float elevation = fabs(motion.attitude.roll);
@@ -264,19 +257,18 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						    //
 						    float angleInRadian = atan2f(-calculatedPoint.y, calculatedPoint.x);
 						    //
-						    camFromIMU.m30 = angleInRadian;		// reliable elevation above horizon
-						    //
 						    // unit vector result in cube 200x200x200
 						    //
-						    camFromIMU.m21 = calculatedPoint1.x;
-						    camFromIMU.m22 = calculatedPoint1.y;
-						    camFromIMU.m23 = calculatedPoint1.z;
+						    camFromIMU.m00 = calculatedPoint1.x;
+						    camFromIMU.m01 = calculatedPoint1.y;
+						    camFromIMU.m02 = calculatedPoint1.z;
 
-						    camFromIMU.m31 = calculatedPoint.x;
-						    camFromIMU.m32 = calculatedPoint.y;
-						    camFromIMU.m33 = calculatedPoint.z;
+						    camFromIMU.m10 = calculatedPoint.x;
+						    camFromIMU.m11 = calculatedPoint.y;
+						    camFromIMU.m12 = calculatedPoint.z;
 
-						    camFromIMU.m03 = elevation;			// motion.roll value
+						    camFromIMU.m30 = angleInRadian;		// reliable elevation above horizon
+						    camFromIMU.m11 = elevation;			// motion.roll value
 					  	}
 						sendMat(camFromIMU, eventSink);
 						}
