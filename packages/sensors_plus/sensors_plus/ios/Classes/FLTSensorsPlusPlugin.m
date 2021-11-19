@@ -201,6 +201,7 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
                                                       toQueue: [[NSOperationQueue alloc] init]
                                       		  withHandler:^(CMDeviceMotion* motion, NSError* error) {
 
+					  if (0) {
 					  if (error) {
 
 					  } else {
@@ -219,10 +220,10 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						CMRotationMatrix r = motion.attitude.rotationMatrix;
 
 						GLKMatrix4 camFromIMU = GLKMatrix4Multiply(
-									GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
-										       r.m21, r.m22, r.m23, 0,
-										       r.m31, r.m32, r.m33, 0,
-										       0,     0,     0,     1), GLKMatrix4MakeYRotation(1.5708));
+										GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
+											       r.m21, r.m22, r.m23, 0,
+											       r.m31, r.m32, r.m33, 0,
+											       0,     0,     0,     1), GLKMatrix4MakeYRotation(1.5708));
 
 						// Translate the camera from the center of the device (do not, in this case)
 						GLKMatrix4 viewFromCam = GLKMatrix4Translate(GLKMatrix4Identity, 0, 0, 0);
@@ -246,7 +247,6 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						viewport[1] = 0;
 						viewport[2] = 500; 	// self.view.frame.size.width;
 						viewport[3] = 500; 	// self.view.frame.size.height;
-						//
 
 						GLKVector3 window_coord = GLKVector3Make(250, 250, 1.0);	// far
 						GLKVector3 window_coord1 = GLKVector3Make(250, 250, 0.0);	// near
@@ -280,10 +280,19 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						    camFromIMU.m12 = calculatedPoint2.z;
 
 						    camFromIMU.m30 = angleInRadian;		// reliable elevation above horizon
-						    camFromIMU.m11 = motion.attitude.roll;	// motion.roll value
+						    camFromIMU.m31 = motion.attitude.roll;	// motion.roll value
+
+						    camFromIMU.m31 = motion.attitude.roll;	// motion.roll value
 					  	}
 						sendMat(camFromIMU, eventSink);
-						}
+					   }
+					}
+
+					GLKMatrix4 ans = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
+						       			r.m21, r.m22, r.m23, 0,
+								        r.m31, r.m32, r.m33, 0,
+								        0,     0,     0,     1);
+					sendMat(ans, eventSink);
                                       }];
 
   return nil;
