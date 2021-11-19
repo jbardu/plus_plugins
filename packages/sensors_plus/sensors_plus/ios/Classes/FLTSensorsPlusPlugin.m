@@ -4,6 +4,7 @@
 
 #import "FLTSensorsPlusPlugin.h"
 #import <CoreMotion/CoreMotion.h>
+#import <GLKit/GLKit.h>
 
 @implementation FLTSensorsPlusPlugin
 
@@ -187,11 +188,11 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 					  } else {
 // https://math.stackexchange.com/questions/1637464/find-unit-vector-given-roll-pitch-and-yaw
-						float aspect = fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
+						float aspect = 1/1.7777; // fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
 						GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 100.0f);
 
-						CMRotationMatrix r = self.motionManager.deviceMotion.attitude.rotationMatrix;
-						float elevation = fabsf(self.motionManager.deviceMotion.attitude.roll);
+						CMRotationMatrix r = motion.attitude.rotationMatrix;
+						float elevation = fabsf(motion.attitude.roll);
 
 						GLKMatrix4 camFromIMU = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
 										       r.m21, r.m22, r.m23, 0,
@@ -207,15 +208,15 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						int viewport[4];
 						viewport[0] = 0.0f;
 						viewport[1] = 0.0f;
-						viewport[2] = self.view.frame.size.width;
-						viewport[3] = self.view.frame.size.height;
+						viewport[2] = 414.0; // self.view.frame.size.width;
+						viewport[3] = 777.0; // self.view.frame.size.height;
 
 						bool success;
 
 						//
 						// assume center of the view
 						//
-						GLKVector3 vector3 = GLKVector3Make(self.view.frame.size.width/2, self.view.frame.size.height/2, 1.0);     
+						GLKVector3 vector3 = GLKVector3Make(viewport[2]/2, viewport[3]/2, 1.0);     
 						GLKVector3 calculatedPoint = GLKMathUnproject(vector3, modelView, projectionMatrix, viewport, &success);
 
 						if(success) {

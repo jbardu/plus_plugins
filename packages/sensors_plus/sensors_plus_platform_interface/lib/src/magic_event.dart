@@ -1,23 +1,17 @@
-/// A sensor sample from a magnetometer.
+/// A sensor sample from a magic.
 ///
-/// Magnetometers measure the ambient magnetic field surrounding the sensor,
-/// returning values in microteslas ***μT*** for each three-dimensional axis.
-///
-/// Consider that these samples may bear effects of Earth's magnetic field as
-/// well as local factors such as the metal of the device itself or nearby
-/// magnets.
-///
-/// A compass is an example of a general utility for magnetometer data.
 class MagicEvent {
-  /// Constructs a new instance with the given [x], [y], and [z] values.
-  ///
-  /// See [MagnetometerEvent] for more information.
-  MagicEvent(this.x, this.y, this.z);
+  MagicEvent(this.m00, this.m01, this.m02, this.m03,
+	     this.m10, this.m11, this.m12, this.13,
+	     this.m20, this.m21, this.m22, this.23,
+	     this.m30, this.m31, this.m32, this.33
+);
 
-  /// The ambient magnetic field in this axis surrounding the sensor in
-  /// microteslas ***μT***.
-  final double x, y, z;
+  final double m00, m01, m02, m03,
+		m10, m11, m12, m13,
+		m20, m21, m22, m23,
+		m30, m31, m32, m33;
 
   @override
-  String toString() => '[MagicEvent (x: $x, y: $y, z: $z)]';
+  String toString() => '[MagicEvent ($m00, $m01, $m02  $m10, $m11, $m12, $m13  $m20, $m21, $m22, $m23  $m30, $m31, $m32, $m33)]';
 }
