@@ -212,10 +212,9 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						//
 						//   45.0 degress vertical FOV 
 						//
-						GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 100.0f);
+						GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 50.0f);
 
 						CMRotationMatrix r = motion.attitude.rotationMatrix;
-
 
 						GLKMatrix4 camFromIMU = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
 										       r.m21, r.m22, r.m23, 0,
@@ -227,20 +226,22 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						GLKMatrix4 viewModel = GLKMatrix4Multiply(imuFromModel, GLKMatrix4Multiply(camFromIMU, viewFromCam));
 
 						bool isInvertible;
-
+						bool success;
+						bool success1 = true;
 						GLKMatrix4 modelView = GLKMatrix4Invert(viewModel, &isInvertible);
+						if (!isInvertible) {
+							success1 = false;
+						}
 
-						GLKVector3 window_coord = GLKVector3Make(500/2.0, 500/2.0, 1.0);
+						GLKVector3 window_coord = GLKVector3Make(0, 0, 1.0);		// top left corner
 						GLKVector3 window_coord1 = GLKVector3Make(0, 500/2.0, 1.0);
 
-						bool success;
-
+						// Define total screen size
 						int viewport[4];
 						viewport[0] = 0;
 						viewport[1] = 0;
 						viewport[2] = 500; 	// self.view.frame.size.width;
 						viewport[3] = 500; 	// self.view.frame.size.height;
-
 						//
 						// assume center pixel of this view.
 						// 
@@ -250,12 +251,13 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 						float elevation = fabs(motion.attitude.roll);
 
-						if(success) {
+						if(success && success1) {
 						    //
 						    // CMAttitudeReferenceFrameXTrueNorthZVertical always point x to true north
 						    // with that, -y become east in 3D world
 						    //
 						    float angleInRadian = atan2f(-calculatedPoint.y, calculatedPoint.x);
+						    
 						    //
 						    // unit vector result in cube 200x200x200
 						    //
