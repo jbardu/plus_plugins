@@ -174,7 +174,22 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 @end
 
+//
 // motionManager.AccelerometerUpdateInterval = 0.01; // 100Hz
+//
+// Describes a reference frame in which the Z axis is vertical 
+// and the X axis points toward true north. 
+//  Note that using this reference frame may require device movement 
+//  to calibrate the magnetometer. It also requires the location to be 
+//  available in order to calculate the difference between magnetic and true north
+// 
+// a device's original orientation is lying flat on a table, with the bottom of the device facing the user:
+// 
+// Change:	Rotation Around:	Caused By:
+// +Yaw	Z	The device is rotated counter-clockwise without lifting any edges.
+// +Pitch	X	The device is rotated towards its bottom.
+// +Roll	Y	The device is rotated towards its right side.
+// 
 
 @implementation FLTMagicStreamHandlerPlus
 
@@ -187,8 +202,15 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 					  if (error) {
 
 					  } else {
-// https://math.stackexchange.com/questions/1637464/find-unit-vector-given-roll-pitch-and-yaw
 						float aspect = 1/1.7777; // fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
+						// 
+						// angle of vertical viewing area 				(45 degrees)
+						// aspect ratio between horizontal and vertical view area
+						// near clipping distance
+						// far clipping distance   (0.1 .. 100.0)
+						//
+						//   45.0 degress vertical FOV 
+						//
 						GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 100.0f);
 
 						CMRotationMatrix r = motion.attitude.rotationMatrix;
@@ -211,16 +233,14 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 						viewport[0] = 0.0f;
 						viewport[1] = 0.0f;
-						viewport[2] = 414.0; // self.view.frame.size.width;
-						viewport[3] = 777.0; // self.view.frame.size.height;
+						viewport[2] = 414.0/2.0; 	// self.view.frame.size.width;
+						viewport[3] = 777.0/2.0; 	// self.view.frame.size.height;
 
 						bool success;
-
 						//
-						// assume center of the view
+						// assume center pixel of this view.
 						//
-						GLKVector3 vector3 = GLKVector3Make(viewport[2]/2, viewport[3]/2, 1.0);     
-
+						GLKVector3 vector3 = GLKVector3Make(viewport[2]/2, viewport[3]/2, 1.0);
 						GLKVector3 calculatedPoint = GLKMathUnproject(vector3, modelView, projectionMatrix, viewport, &success);
 
 						float elevation = fabs(motion.attitude.roll);
@@ -231,26 +251,16 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						    // with that, -y become east in 3D world
 						    //
 						    float angleInRadian = atan2f(-calculatedPoint.y, calculatedPoint.x);
-
-						    camFromIMU.m30 = angleInRadian;
+						    camFromIMU.m30 = angleInRadian;		// reliable elevation above horizon
+						    //
+						    // unit vector result in cube 200x200x200
+						    //
 						    camFromIMU.m31 = calculatedPoint.x;
 						    camFromIMU.m32 = calculatedPoint.y;
 						    camFromIMU.m33 = calculatedPoint.z;
-						    camFromIMU.m03 = elevation;
+						    camFromIMU.m03 = elevation;			// motion.roll value
 					  	}
 						sendMat(camFromIMU, eventSink);
-//
-//Describes a reference frame in which the Z axis is vertical 
-//and the X axis points toward true north. 
-//Note that using this reference frame may require device movement 
-//to calibrate the magnetometer. It also requires the location to be 
-//available in order to calculate the difference between magnetic and true north
-// 
-// a device's original orientation is lying flat on a table, with the bottom of the device facing the user:
-//Change:	Rotation Around:	Caused By:
-//+Yaw	Z	The device is rotated counter-clockwise without lifting any edges.
-//+Pitch	X	The device is rotated towards its bottom.
-//+Roll	Y	The device is rotated towards its right side.
 						}
                                       }];
 
