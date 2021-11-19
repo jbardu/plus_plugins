@@ -212,7 +212,7 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						//
 						//   45.0 degress vertical FOV 
 						//
-						GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 50.0f);
+						GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45.0f), aspect, 0.01f, 100.0f);
 
 						CMRotationMatrix r = motion.attitude.rotationMatrix;
 
@@ -232,13 +232,13 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						if (!isInvertible) {
 							success1 = false;
 						}
-
-						GLKVector3 window_coord = GLKVector3Make(0, 0, 1.0);		// top left corner
-						GLKVector3 window_coord1 = GLKVector3Make(0, 500/2.0, 1.0);
+						float nearfar = 1.0;
+						GLKVector3 window_coord = GLKVector3Make(250, 250, nearfar);	// top left corner
+						GLKVector3 window_coord1 = GLKVector3Make(500, 500, nearfar);	// bottom right corner
 
 						// Define total screen size
 						int viewport[4];
-						viewport[0] = 0;
+						viewport[0] = 0;	// bottom left
 						viewport[1] = 0;
 						viewport[2] = 500; 	// self.view.frame.size.width;
 						viewport[3] = 500; 	// self.view.frame.size.height;
