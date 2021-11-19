@@ -193,7 +193,6 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 						CMRotationMatrix r = motion.attitude.rotationMatrix;
 
-						float elevation = fabs(motion.attitude.roll);
 
 						GLKMatrix4 camFromIMU = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
 										       r.m21, r.m22, r.m23, 0,
@@ -203,10 +202,13 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						GLKMatrix4 viewFromCam = GLKMatrix4Translate(GLKMatrix4Identity, 0, 0, 0);
 						GLKMatrix4 imuFromModel = GLKMatrix4Identity;
 						GLKMatrix4 viewModel = GLKMatrix4Multiply(imuFromModel, GLKMatrix4Multiply(camFromIMU, viewFromCam));
+
 						bool isInvertible;
+
 						GLKMatrix4 modelView = GLKMatrix4Invert(viewModel, &isInvertible);
 
 						int viewport[4];
+
 						viewport[0] = 0.0f;
 						viewport[1] = 0.0f;
 						viewport[2] = 414.0; // self.view.frame.size.width;
@@ -218,7 +220,10 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						// assume center of the view
 						//
 						GLKVector3 vector3 = GLKVector3Make(viewport[2]/2, viewport[3]/2, 1.0);     
+
 						GLKVector3 calculatedPoint = GLKMathUnproject(vector3, modelView, projectionMatrix, viewport, &success);
+
+						float elevation = fabs(motion.attitude.roll);
 
 						if(success) {
 						    //
@@ -226,8 +231,12 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						    // with that, -y become east in 3D world
 						    //
 						    float angleInRadian = atan2f(-calculatedPoint.y, calculatedPoint.x);
-						    camFromIMU.m32 = angleInRadian;
-						    camFromIMU.m33 = elevation;
+
+						    camFromIMU.m30 = angleInRadian;
+						    camFromIMU.m31 = calculatedPoint.x;
+						    camFromIMU.m32 = calculatedPoint.y;
+						    camFromIMU.m33 = calculatedPoint.z;
+						    camFromIMU.m03 = elevation;
 					  	}
 						sendMat(camFromIMU, eventSink);
 //
