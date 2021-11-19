@@ -192,7 +192,8 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 100.0f);
 
 						CMRotationMatrix r = motion.attitude.rotationMatrix;
-						float elevation = fabsf(motion.attitude.roll);
+
+						float elevation = fabs(motion.attitude.roll);
 
 						GLKMatrix4 camFromIMU = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
 										       r.m21, r.m22, r.m23, 0,
@@ -241,6 +242,7 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 //+Yaw	Z	The device is rotated counter-clockwise without lifting any edges.
 //+Pitch	X	The device is rotated towards its bottom.
 //+Roll	Y	The device is rotated towards its right side.
+						}
                                       }];
 
   return nil;
