@@ -288,6 +288,7 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 					   }
 					}
 
+					CMRotationMatrix r = motion.attitude.rotationMatrix; // 0x0 is r.m11
 					GLKMatrix4 ans = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
 						       			r.m21, r.m22, r.m23, 0,
 								        r.m31, r.m32, r.m33, 0,
