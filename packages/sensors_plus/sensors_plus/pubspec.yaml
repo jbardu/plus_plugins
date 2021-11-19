@@ -20,7 +20,10 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  sensors_plus_web: ^1.1.0
+  sensors_plus_web:
+    git:
+      url: https://github.com/jbardu/plus_plugins
+      path: packages/sensors_plus/sensors_plus_web
   sensors_plus_platform_interface:
     git:
       url: https://github.com/jbardu/plus_plugins
