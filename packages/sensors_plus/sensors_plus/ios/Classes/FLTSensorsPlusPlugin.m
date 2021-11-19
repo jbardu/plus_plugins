@@ -221,13 +221,19 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 										       r.m31, r.m32, r.m33, 0,
 										       0,     0,     0,     1);
 
+						// Translate the camera from the center of the device (do not, in this case)
 						GLKMatrix4 viewFromCam = GLKMatrix4Translate(GLKMatrix4Identity, 0, 0, 0);
+
+						GLKMatrix4 spinCam = GLKMatrix4MakeZRotation(1.5708);
+						viewFromCam = GLKMatrix4Multiply(viewFromCam, spinCam);
+
 						GLKMatrix4 imuFromModel = GLKMatrix4Identity;
 						GLKMatrix4 viewModel = GLKMatrix4Multiply(imuFromModel, GLKMatrix4Multiply(camFromIMU, viewFromCam));
 
 						bool isInvertible;
-						bool success;
+						bool success[4];
 						bool success1 = true;
+
 						GLKMatrix4 modelView = GLKMatrix4Invert(viewModel, &isInvertible);
 						if (!isInvertible) {
 							success1 = false;
@@ -245,24 +251,23 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						GLKVector3 window_coord = GLKVector3Make(250, 250, 1.0);	// far
 						GLKVector3 window_coord1 = GLKVector3Make(250, 250, 0.0);	// near
 						// 
-						GLKVector3 calculatedPoint = GLKMathUnproject(window_coord, modelView, projectionMatrix, viewport, &success);
-						GLKVector3 calculatedPoint1 = GLKMathUnproject(window_coord1, modelView, projectionMatrix, viewport, &success);
+						GLKVector3 calculatedPoint = GLKMathUnproject(window_coord, modelView, projectionMatrix, viewport, &success[0]);
+						GLKVector3 calculatedPoint1 = GLKMathUnproject(window_coord1, modelView, projectionMatrix, viewport, &success[1]);
 					        calculatedPoint = GLKVector3Subtract(calculatedPoint, calculatedPoint1);
 
 						window_coord = GLKVector3Make(100, 250, 1.0);	// far
 						window_coord1 = GLKVector3Make(100, 250, 0.0);	// near
 
-						GLKVector3 calculatedPoint2 = GLKMathUnproject(window_coord, modelView, projectionMatrix, viewport, &success);
-						GLKVector3 calculatedPoint3 = GLKMathUnproject(window_coord1, modelView, projectionMatrix, viewport, &success);
+						GLKVector3 calculatedPoint2 = GLKMathUnproject(window_coord, modelView, projectionMatrix, viewport, &success[2]);
+						GLKVector3 calculatedPoint3 = GLKMathUnproject(window_coord1, modelView, projectionMatrix, viewport, &success[3]);
 					        calculatedPoint2 = GLKVector3Subtract(calculatedPoint2, calculatedPoint3);
 
-						if(success && success1) {
+						if(success1) {
 						    //
 						    // CMAttitudeReferenceFrameXTrueNorthZVertical always point x to true north
 						    // with that, -y become east in 3D world
 						    //
 						    float angleInRadian = atan2f(-calculatedPoint.y, calculatedPoint.x);
-
 						    //
 						    // unit vector result in cube 200x200x200
 						    //
