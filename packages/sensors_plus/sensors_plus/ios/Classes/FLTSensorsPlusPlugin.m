@@ -225,7 +225,7 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						GLKMatrix4 viewFromCam = GLKMatrix4Translate(GLKMatrix4Identity, 0, 0, 0);
 
 						GLKMatrix4 spinCam = GLKMatrix4MakeZRotation(1.5708);
-						viewFromCam = GLKMatrix4Multiply(viewFromCam, spinCam);
+						viewFromCam = GLKMatrix4Multiply(spinCam, viewFromCam);
 
 						GLKMatrix4 imuFromModel = GLKMatrix4Identity;
 						GLKMatrix4 viewModel = GLKMatrix4Multiply(imuFromModel, GLKMatrix4Multiply(camFromIMU, viewFromCam));
