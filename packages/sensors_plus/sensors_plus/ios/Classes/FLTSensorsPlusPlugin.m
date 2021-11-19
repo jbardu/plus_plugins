@@ -202,7 +202,8 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 					  if (error) {
 
 					  } else {
-						float aspect = 1/1.7777; // fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
+						// float aspect = 1/1.7777; // fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
+						float aspect = 1.0;
 						// 
 						// angle of vertical viewing area 				(45 degrees)
 						// aspect ratio between horizontal and vertical view area
@@ -233,8 +234,10 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 						viewport[0] = 0.0f;
 						viewport[1] = 0.0f;
-						viewport[2] = 414.0/2.0; 	// self.view.frame.size.width;
-						viewport[3] = 777.0/2.0; 	// self.view.frame.size.height;
+						//viewport[2] = 414.0/2.0; 	// self.view.frame.size.width;
+						//viewport[3] = 777.0/2.0; 	// self.view.frame.size.height;
+						viewport[2] = 500.0/2.0; 	// self.view.frame.size.width;
+						viewport[3] = 500.0/2.0; 	// self.view.frame.size.height;
 
 						bool success;
 						//
