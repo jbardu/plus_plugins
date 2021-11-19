@@ -36,4 +36,10 @@ class Sensors extends SensorsPlatform {
   Stream<MagnetometerEvent> get magnetometerEvents {
     return _platform.magnetometerEvents;
   }
+
+  /// A broadcast stream of events from the device magnetometer.
+  @override
+  Stream<MagicEvent> get magicEvents {
+    return _platform.magicEvents;
+  }
 }

@@ -35,6 +35,13 @@
       [FlutterEventChannel eventChannelWithName:@"dev.fluttercommunity.plus/sensors/magnetometer"
                                 binaryMessenger:[registrar messenger]];
   [magnetometerChannel setStreamHandler:magnetometerStreamHandler];
+
+  FLTMagicStreamHandlerPlus* magicStreamHandler =
+      [[FLTMagicStreamHandlerPlus alloc] init];
+  FlutterEventChannel* magicChannel =
+      [FlutterEventChannel eventChannelWithName:@"dev.fluttercommunity.plus/sensors/magic"
+                                binaryMessenger:[registrar messenger]];
+  [magicChannel setStreamHandler:magicStreamHandler];
 }
 
 @end
@@ -45,6 +52,10 @@ CMMotionManager* _motionManager;
 void _initMotionManager() {
   if (!_motionManager) {
     _motionManager = [[CMMotionManager alloc] init];
+
+    //if (([CMMotionManager availableAttitudeReferenceFrames] & CMAttitudeReferenceFrameXTrueNorthZVertical) != 0) {
+	//
+    //}
   }
 }
 
@@ -136,6 +147,51 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onCancelWithArguments:(id)arguments {
   [_motionManager stopMagnetometerUpdates];
+  return nil;
+}
+
+@end
+
+	// motionManager.AccelerometerUpdateInterval = 0.01; // 100Hz
+
+@implementation FLTMagicStreamHandlerPlus
+
+- (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
+  _initMotionManager();
+  [_motionManager startDeviceMotionUpdatesUsingReferenceFrame: CMAttitudeReferenceFrameXTrueNorthZVertical
+                                                      toQueue: [[NSOperationQueue alloc] init]
+                                      		  withHandler:^(CMDeviceMotion* motion, NSError* error) {
+
+	 				//CMRotationRate AA = motion.rotationRate;
+	 				//CMAcceleration BB = motion.gravity;
+	 				//CMAcceleration CC = motion.userAcceleration;
+
+	 				CMAttitude *DD = motion.attitude;
+					//CMAttitude *attitude = motion.attitude;
+        				//CMRotationMatrix rm = attitude.rotationMatrix;
+
+//Describes a reference frame in which the Z axis is vertical and the X axis points toward true north. Note that using this reference frame may require device movement to calibrate the magnetometer. It also requires the location to be available in order to calculate the difference between magnetic and true north
+                                        // CMMagneticField magneticField = magData.magneticField;
+// a device's original orientation is lying flat on a table, with the bottom of the device facing the user:
+//Change:	Rotation Around:	Caused By:
+//+Yaw	Z	The device is rotated counter-clockwise without lifting any edges.
+//+Pitch	X	The device is rotated towards its bottom.
+//+Roll	Y	The device is rotated towards its right side.
+
+                                        sendTriplet(DD.pitch, DD.roll, DD.yaw, eventSink);
+
+                                      }];
+
+  //[_motionManager startMagnetometerUpdatesToQueue:[[NSOperationQueue alloc] init]
+  //                                    withHandler:^(CMMagnetometerData* magData, NSError* error) {
+  //                                     CMMagneticField magneticField = magData.magneticField;
+  //                                      sendTriplet(magneticField.x, magneticField.y,
+  //                                                  magneticField.z, eventSink);
+  return nil;
+}
+
+- (FlutterError*)onCancelWithArguments:(id)arguments {
+  [_motionManager stopDeviceMotionUpdates];
   return nil;
 }
 

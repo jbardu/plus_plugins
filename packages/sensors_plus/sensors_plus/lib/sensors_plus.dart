@@ -1,5 +1,4 @@
 export 'src/sensors.dart';
-
 import 'package:sensors_plus_platform_interface/sensors_plus_platform_interface.dart';
 
 import 'src/sensors.dart';
@@ -25,4 +24,9 @@ Stream<UserAccelerometerEvent> get userAccelerometerEvents {
 /// A broadcast stream of events from the device magnetometer.
 Stream<MagnetometerEvent> get magnetometerEvents {
   return _sensors.magnetometerEvents;
+}
+
+/// A broadcast stream of events from the device magnetometer.
+Stream<MagicEvent> get magicEvents {
+  return _sensors.magicEvents;
 }

@@ -18,3 +18,6 @@
 
 @interface FLTMagnetometerStreamHandlerPlus : NSObject <FlutterStreamHandler>
 @end
+
+@interface FLTMagicStreamHandlerPlus : NSObject <FlutterStreamHandler>
+@end
