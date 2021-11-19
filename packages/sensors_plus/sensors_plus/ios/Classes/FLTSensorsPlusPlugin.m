@@ -218,17 +218,14 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 						CMRotationMatrix r = motion.attitude.rotationMatrix;
 
-						GLKMatrix4 camFromIMU = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
+						GLKMatrix4 camFromIMU = GLKMatrix4Multiply(
+									GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
 										       r.m21, r.m22, r.m23, 0,
 										       r.m31, r.m32, r.m33, 0,
-										       0,     0,     0,     1);
+										       0,     0,     0,     1), GLKMatrix4MakeZRotation(1.5708));
 
 						// Translate the camera from the center of the device (do not, in this case)
 						GLKMatrix4 viewFromCam = GLKMatrix4Translate(GLKMatrix4Identity, 0, 0, 0);
-
-						GLKMatrix4 spinCam = GLKMatrix4MakeZRotation(1.5708);
-
-						viewFromCam = GLKMatrix4Multiply(viewFromCam, spinCam);
 
 						GLKMatrix4 imuFromModel = GLKMatrix4Identity;
 						GLKMatrix4 viewModel = GLKMatrix4Multiply(imuFromModel, GLKMatrix4Multiply(camFromIMU, viewFromCam));
