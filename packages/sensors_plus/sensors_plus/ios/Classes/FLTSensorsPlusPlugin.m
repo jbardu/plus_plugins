@@ -246,7 +246,7 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						// 
 						// near point =
 						GLKVector3 calculatedPoint = GLKMathUnproject(window_coord, modelView, projectionMatrix, viewport, &success);
-						GLKVector3 calculatedPoint1 = GLKMathUnproject(window_coord1, modelView, projectionMatrix, viewport1, &success);
+						GLKVector3 calculatedPoint1 = GLKMathUnproject(window_coord1, modelView, projectionMatrix, viewport, &success);
 
 						float elevation = fabs(motion.attitude.roll);
 
