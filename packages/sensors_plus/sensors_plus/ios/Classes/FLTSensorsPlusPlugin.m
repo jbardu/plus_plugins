@@ -74,25 +74,18 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
   sink([FlutterStandardTypedData typedDataWithFloat64:event]);
 }
 
-static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
+static void sendMat(CMRotationMatrix m, FlutterEventSink sink) {
   NSMutableData* event = [NSMutableData dataWithCapacity:16 * sizeof(float)];
-  [event appendBytes:&m.m00 length:sizeof(float)];
-  [event appendBytes:&m.m01 length:sizeof(float)];
-  [event appendBytes:&m.m02 length:sizeof(float)];
-  [event appendBytes:&m.m03 length:sizeof(float)];
-  [event appendBytes:&m.m10 length:sizeof(float)];
-  [event appendBytes:&m.m11 length:sizeof(float)];
-  [event appendBytes:&m.m12 length:sizeof(float)];
-  [event appendBytes:&m.m13 length:sizeof(float)];
-  [event appendBytes:&m.m20 length:sizeof(float)];
-  [event appendBytes:&m.m21 length:sizeof(float)];
-  [event appendBytes:&m.m22 length:sizeof(float)];
-  [event appendBytes:&m.m23 length:sizeof(float)];
-  [event appendBytes:&m.m30 length:sizeof(float)];
-  [event appendBytes:&m.m31 length:sizeof(float)];
-  [event appendBytes:&m.m32 length:sizeof(float)];
-  [event appendBytes:&m.m33 length:sizeof(float)];
-  sink([FlutterStandardTypedData typedDataWithFloat32:event]);
+  [event appendBytes:&m.m11 length:sizeof(double)];
+  [event appendBytes:&m.m12 length:sizeof(double)];
+  [event appendBytes:&m.m13 length:sizeof(double)];
+  [event appendBytes:&m.m21 length:sizeof(double)];
+  [event appendBytes:&m.m22 length:sizeof(double)];
+  [event appendBytes:&m.m23 length:sizeof(double)];
+  [event appendBytes:&m.m31 length:sizeof(double)];
+  [event appendBytes:&m.m32 length:sizeof(double)];
+  [event appendBytes:&m.m33 length:sizeof(double)];
+  sink([FlutterStandardTypedData typedDataWithFloat64:event]);
 }
 
 @implementation FLTAccelerometerStreamHandlerPlus
@@ -279,7 +272,6 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 						    // CMAttitudeReferenceFrameXTrueNorthZVertical always point x to true north
 						    // with that, -y become east in 3D world
 						    //
-						    float angleInRadian = atan2f(-calculatedPoint.y, calculatedPoint.x);
 						    //
 						    // unit vector result in cube 200x200x200
 						    //
@@ -306,11 +298,7 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 					float roll = 0.0; // motion.attitude.roll;
 
 					CMRotationMatrix r = motion.attitude.rotationMatrix; // 0x0 is r.m11
-					GLKMatrix4 ans = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
-						       			r.m21, r.m22, r.m23, 0,
-								        r.m31, r.m32, r.m33, 0,
-								        vec3.x,vec3.y,vec3.y, roll);
-					sendMat(ans, eventSink);
+					sendMat(r, eventSink);
 					  }
                                       }];
 
