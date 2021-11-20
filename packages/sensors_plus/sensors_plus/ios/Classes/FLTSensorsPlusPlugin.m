@@ -55,8 +55,9 @@ void _initMotionManager() {
   if (!_motionManager) {
     _motionManager = [[CMMotionManager alloc] init];
 
-    _motionManager.deviceMotionUpdateInterval = 0.05;
+    _motionManager.deviceMotionUpdateInterval = 1/30.0;
     _motionManager.showsDeviceMovementDisplay = YES;
+    _motionManager.startDeviceMotionUpdates(using: CMAttitudeReferenceFrame.xMagneticNorthZVertical);
 
     //if (([CMMotionManager availableAttitudeReferenceFrames] & CMAttitudeReferenceFrameXTrueNorthZVertical) != 0) {
 	//
