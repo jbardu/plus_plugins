@@ -48,6 +48,7 @@
 @end
 
 const double GRAVITY = 9.8;
+
 CMMotionManager* _motionManager;
 
 void _initMotionManager() {
@@ -197,11 +198,12 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
 
+  CMMotionManager* _motionManager = [[CMMotionManager alloc] init];
 
-  _initMotionManager();
+  //_initMotionManager();
 
-	_motionManager.deviceMotionUpdateInterval = 0.05;
-	_motionManager.showsDeviceMovementDisplay = YES;
+  _motionManager.deviceMotionUpdateInterval = 0.05;
+  _motionManager.showsDeviceMovementDisplay = YES;
 	// motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
 
   [_motionManager startDeviceMotionUpdatesUsingReferenceFrame: CMAttitudeReferenceFrameXTrueNorthZVertical
