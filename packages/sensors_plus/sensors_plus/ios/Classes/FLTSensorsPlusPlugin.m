@@ -275,6 +275,7 @@ static void sendMat(CMRotationMatrix m, FlutterEventSink sink) {
 						    //
 						    // unit vector result in cube 200x200x200
 						    //
+						    /*
 						    camFromIMU.m00 = calculatedPoint.x;
 						    camFromIMU.m01 = calculatedPoint.y;
 						    camFromIMU.m02 = calculatedPoint.z;
@@ -287,8 +288,9 @@ static void sendMat(CMRotationMatrix m, FlutterEventSink sink) {
 						    camFromIMU.m31 = motion.attitude.roll;	// motion.roll value
 
 						    camFromIMU.m31 = motion.attitude.roll;	// motion.roll value
+						    */
 					  	}
-						sendMat(camFromIMU, eventSink);
+						/* sendMat(camFromIMU, eventSink); */
 					   }
 					}
 					  if (error) {
