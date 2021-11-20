@@ -301,8 +301,9 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 					}
 					  if (error) {
 					  } else {
-	        			CMMagneticField vec3 = motion.magneticField.field;
-					float roll = motion.attitude.roll;
+
+	        			//CMMagneticField vec3 = motion.magneticField.field;
+					float roll = 0.0; // motion.attitude.roll;
 
 					CMRotationMatrix r = motion.attitude.rotationMatrix; // 0x0 is r.m11
 					GLKMatrix4 ans = GLKMatrix4Make(r.m11, r.m12, r.m13, 0,
