@@ -55,6 +55,9 @@ void _initMotionManager() {
   if (!_motionManager) {
     _motionManager = [[CMMotionManager alloc] init];
 
+    _motionManager.deviceMotionUpdateInterval = 0.05;
+    _motionManager.showsDeviceMovementDisplay = YES;
+
     //if (([CMMotionManager availableAttitudeReferenceFrames] & CMAttitudeReferenceFrameXTrueNorthZVertical) != 0) {
 	//
     //}
@@ -198,12 +201,10 @@ static void sendMat(GLKMatrix4 m, FlutterEventSink sink) {
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
 
-  CMMotionManager* _motionManager = [[CMMotionManager alloc] init];
+  //CMMotionManager* _motionManager = [[CMMotionManager alloc] init];
 
-  //_initMotionManager();
+  _initMotionManager();
 
-  _motionManager.deviceMotionUpdateInterval = 0.05;
-  _motionManager.showsDeviceMovementDisplay = YES;
 	// motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
 
   [_motionManager startDeviceMotionUpdatesUsingReferenceFrame: CMAttitudeReferenceFrameXTrueNorthZVertical
