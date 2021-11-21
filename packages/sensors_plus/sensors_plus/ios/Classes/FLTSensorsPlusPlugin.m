@@ -300,8 +300,8 @@ static void sendMat(CMRotationMatrix m, double h, FlutterEventSink sink) {
 					    float attitudeRoll = motion.attitude.roll;
 					    double compassHeading = attitudeYaw + attitudeRoll;
 
-					    if attitudeRoll < 0 && attitudeYaw < 0) {
-					      compassHeading = 2.0*3.14159 - (-1.0 * compassHeading);
+					    if (attitudeRoll < 0 && attitudeYaw < 0) {
+					      compassHeading = 6.28318530718 - (-1.0 * compassHeading);
 					    }
 					    CMRotationMatrix r = motion.attitude.rotationMatrix;
 					    sendMat(r, compassHeading, eventSink);
