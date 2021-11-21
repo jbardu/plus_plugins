@@ -74,7 +74,7 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
   sink([FlutterStandardTypedData typedDataWithFloat64:event]);
 }
 
-static void sendMat(CMRotationMatrix m, FlutterEventSink sink) {
+static void sendMat(CMRotationMatrix m, double h, FlutterEventSink sink) {
   NSMutableData* event = [NSMutableData dataWithCapacity:16 * sizeof(float)];
   [event appendBytes:&m.m11 length:sizeof(double)];
   [event appendBytes:&m.m12 length:sizeof(double)];
@@ -85,6 +85,7 @@ static void sendMat(CMRotationMatrix m, FlutterEventSink sink) {
   [event appendBytes:&m.m31 length:sizeof(double)];
   [event appendBytes:&m.m32 length:sizeof(double)];
   [event appendBytes:&m.m33 length:sizeof(double)];
+  [event appendBytes:&h length:sizeof(double)];
   sink([FlutterStandardTypedData typedDataWithFloat64:event]);
 }
 
@@ -295,12 +296,15 @@ static void sendMat(CMRotationMatrix m, FlutterEventSink sink) {
 					}
 					  if (error) {
 					  } else {
+					    float attitudeYaw = motion.attitude.yaw;
+					    float attitudeRoll = motion.attitude.roll;
+					    double compassHeading = attitudeYaw + attitudeRoll;
 
-	        			CMMagneticField vec3; // = motion.magneticField.field;
-					float roll = 0.0; // motion.attitude.roll;
-
-					CMRotationMatrix r = motion.attitude.rotationMatrix; // 0x0 is r.m11
-					sendMat(r, eventSink);
+					    if attitudeRoll < 0 && attitudeYaw < 0) {
+					      compassHeading = 2.0*3.14159 - (-1.0 * compassHeading);
+					    }
+					    CMRotationMatrix r = motion.attitude.rotationMatrix;
+					    sendMat(r, compassHeading, eventSink);
 					  }
                                       }];
 
