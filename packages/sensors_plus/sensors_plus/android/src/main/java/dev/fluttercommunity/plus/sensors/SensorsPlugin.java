@@ -7,6 +7,8 @@ package dev.fluttercommunity.plus.sensors;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import androidx.annotation.NonNull;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -25,20 +27,28 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
   private SensorEventListener listener1;
   private final SensorManager sensorManager;
   private final Sensor sensor;
+  private final Sensor accelerometer;
+  private final Sensor magneticfield;
   private final float[] rotationMatrix = new float[9];
   private final float[] accelerometerReading = new float[3];
   private final float[] magnetometerReading = new float[3];
 
-  StreamHandlerImpl(SensorManager sensorManager, int sensorType) {
+  StreamHandlerImpl2(SensorManager sensorManager, int sensorType) {
     this.sensorManager = sensorManager;
+
     sensor = sensorManager.getDefaultSensor(sensorType);
+    accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    magneticfield = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
   }
 
   @Override
   public void onListen(Object arguments, EventChannel.EventSink events) {
     sensorEventListener = createSensorEventListener(events);
     listener1 = createOther(events);
-    sensorManager.registerListener(sensorEventListener, sensor, sensorManager.SENSOR_DELAY_NORMAL);
+
+    sensorManager.registerListener(sensorEventListener, sensor, sensorManager.SENSOR_DELAY_GAME);
+    sensorManager.registerListener(listener1, accelerometer, sensorManager.SENSOR_DELAY_GAME);
+    sensorManager.registerListener(listener1, magneticfield, sensorManager.SENSOR_DELAY_GAME);
   }
 
   @Override
@@ -73,16 +83,12 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
 
       @Override
       public void onSensorChanged(SensorEvent event) {
-
-      	//
-	// Use two privte fields and 
-	// data here to create rotation matrix
-	//  then return the rotation matrix
         SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading);
         double[] sensorValues = new double[rotationMatrix.length];
+	// Should invert the matrix to match IOS here.
         for (int i = 0; i < rotationMatrix.length; i++) {
           sensorValues[i] = rotationMatrix[i];
-        }
+        } 
         events.success(sensorValues);
       }
     };
@@ -149,8 +155,6 @@ public class SensorsPlugin implements FlutterPlugin {
     magnetometerChannel.setStreamHandler(magnetometerStreamHandler);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-
-    	    Log.d("myTag", "setting up magic channel");
 	    magicChannel = new EventChannel(messenger, MAGIC_CHANNEL_NAME);
 	    final StreamHandlerImpl2 magicStreamHandler =
 		new StreamHandlerImpl2(
@@ -159,7 +163,7 @@ public class SensorsPlugin implements FlutterPlugin {
 	    magicChannel.setStreamHandler(magicStreamHandler);
 
     } else {
-    	   Log.d("myTag", "failed to set up magic channel");
+    	   Log.d("myTag", "SDK not KitKat or greater for rotation matrix");
     }
   }
 
