@@ -84,11 +84,17 @@ class MethodChannelSensors extends SensorsPlatform {
       final list = event.cast<double>();
 	var l = list.length;
 	print("event length $l");
-
+	if (l == 5) {
+      return MagicEvent(
+			list[0]!, list[1]!, list[2]!,
+			list[3]!, list[4]!, 0.0,
+			0.0, 0.0, 0.0, 0.0);
+} else {
       return MagicEvent(
 			list[0]!, list[1]!, list[2]!,
 			list[3]!, list[4]!, list[5]!,
 			list[6]!, list[7]!, list[8]!, list[9]!);
+}
     });
     return _magicEvents!;
   }
