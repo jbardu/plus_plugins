@@ -76,12 +76,15 @@ class MethodChannelSensors extends SensorsPlatform {
     return _magnetometerEvents!;
   }
 
-  /// A broadcast stream of events from the device magnetometer.
+  /// A broadcast stream of events from the device orientation matrix
   @override
   Stream<MagicEvent> get magicEvents {
     _magicEvents ??=
         _magicEventChannel.receiveBroadcastStream().map((dynamic event) {
       final list = event.cast<double>();
+	var l = list.length;
+	print("event length $l");
+
       return MagicEvent(
 			list[0]!, list[1]!, list[2]!,
 			list[3]!, list[4]!, list[5]!,
