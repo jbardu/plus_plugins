@@ -14,6 +14,83 @@ import io.flutter.plugin.common.EventChannel;
 import android.util.Log;
 import android.os.Build;
 
+// new StreamHandlerImpl( (SensorManager) context.getSystemService(Context.SENSOR_SERVICE), Sensor.TYPE_MAGNETIC_FIELD);
+
+// 
+// Alternate stream handler that munges
+// two sensors together to get rotation materix
+//
+class StreamHandlerImpl2 implements EventChannel.StreamHandler {
+  private SensorEventListener sensorEventListener;
+  private SensorEventListener listener1;
+  private final SensorManager sensorManager;
+  private final Sensor sensor;
+  private final float[] rotationMatrix = new float[9];
+  private final float[] accelerometerReading = new float[3];
+  private final float[] magnetometerReading = new float[3];
+
+  StreamHandlerImpl(SensorManager sensorManager, int sensorType) {
+    this.sensorManager = sensorManager;
+    sensor = sensorManager.getDefaultSensor(sensorType);
+  }
+
+  @Override
+  public void onListen(Object arguments, EventChannel.EventSink events) {
+    sensorEventListener = createSensorEventListener(events);
+    listener1 = createOther(events);
+    sensorManager.registerListener(sensorEventListener, sensor, sensorManager.SENSOR_DELAY_NORMAL);
+  }
+
+  @Override
+  public void onCancel(Object arguments) {
+    sensorManager.unregisterListener(sensorEventListener);
+    sensorManager.unregisterListener(listener1);
+  }
+
+  SensorEventListener createOther(final EventChannel.EventSink events) {
+
+    return new SensorEventListener() {
+      @Override
+      public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+      @Override
+      public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+          System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.length);
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
+        }
+      }
+    };
+
+  };
+
+  SensorEventListener createSensorEventListener(final EventChannel.EventSink events) {
+
+    return new SensorEventListener() {
+      @Override
+      public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+      @Override
+      public void onSensorChanged(SensorEvent event) {
+
+      	//
+	// Use two privte fields and 
+	// data here to create rotation matrix
+	//  then return the rotation matrix
+        SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading);
+        double[] sensorValues = new double[rotationMatrix.length];
+        for (int i = 0; i < rotationMatrix.length; i++) {
+          sensorValues[i] = rotationMatrix[i];
+        }
+        events.success(sensorValues);
+      }
+    };
+
+  }
+}
+
+
 /** SensorsPlugin */
 public class SensorsPlugin implements FlutterPlugin {
   private static final String ACCELEROMETER_CHANNEL_NAME =
@@ -68,19 +145,19 @@ public class SensorsPlugin implements FlutterPlugin {
 
     magnetometerChannel = new EventChannel(messenger, MAGNETOMETER_CHANNEL_NAME);
     final StreamHandlerImpl magnetometerStreamHandler =
-        new StreamHandlerImpl(
-            (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
-            Sensor.TYPE_MAGNETIC_FIELD);
+        new StreamHandlerImpl( (SensorManager) context.getSystemService(Context.SENSOR_SERVICE), Sensor.TYPE_MAGNETIC_FIELD);
     magnetometerChannel.setStreamHandler(magnetometerStreamHandler);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+
     	    Log.d("myTag", "setting up magic channel");
 	    magicChannel = new EventChannel(messenger, MAGIC_CHANNEL_NAME);
-	    final StreamHandlerImpl magicStreamHandler =
-		new StreamHandlerImpl(
+	    final StreamHandlerImpl2 magicStreamHandler =
+		new StreamHandlerImpl2(
 		    (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
 		    Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
 	    magicChannel.setStreamHandler(magicStreamHandler);
+
     } else {
     	   Log.d("myTag", "failed to set up magic channel");
     }
