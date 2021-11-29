@@ -22,11 +22,14 @@ public class SensorsPlugin implements FlutterPlugin {
       "dev.fluttercommunity.plus/sensors/user_accel";
   private static final String MAGNETOMETER_CHANNEL_NAME =
       "dev.fluttercommunity.plus/sensors/magnetometer";
+  private static final String MAGIC_CHANNEL_NAME =
+      "dev.fluttercommunity.plus/sensors/magic";
 
   private EventChannel accelerometerChannel;
   private EventChannel userAccelChannel;
   private EventChannel gyroscopeChannel;
   private EventChannel magnetometerChannel;
+  private EventChannel magicChannel;
 
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
@@ -67,6 +70,18 @@ public class SensorsPlugin implements FlutterPlugin {
             (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
             Sensor.TYPE_MAGNETIC_FIELD);
     magnetometerChannel.setStreamHandler(magnetometerStreamHandler);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    	    Log.d("myTag", "setting up magic channel");
+	    magicChannel = new EventChannel(messenger, MAGIC_CHANNEL_NAME);
+	    final StreamHandlerImpl magicStreamHandler =
+		new StreamHandlerImpl(
+		    (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
+		    Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
+	    magicChannel.setStreamHandler(magicStreamHandler);
+    } else {
+    	   Log.d("myTag", "failed to set up magic channel");
+    }
   }
 
   private void teardownEventChannels() {
@@ -74,5 +89,8 @@ public class SensorsPlugin implements FlutterPlugin {
     userAccelChannel.setStreamHandler(null);
     gyroscopeChannel.setStreamHandler(null);
     magnetometerChannel.setStreamHandler(null);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    	magicChannel.setStreamHandler(null);
+    }
   }
 }
