@@ -12,6 +12,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import android.util.Log;
+import android.os.Build;
 
 /** SensorsPlugin */
 public class SensorsPlugin implements FlutterPlugin {
@@ -72,7 +73,7 @@ public class SensorsPlugin implements FlutterPlugin {
             Sensor.TYPE_MAGNETIC_FIELD);
     magnetometerChannel.setStreamHandler(magnetometerStreamHandler);
 
-    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
     	    Log.d("myTag", "setting up magic channel");
 	    magicChannel = new EventChannel(messenger, MAGIC_CHANNEL_NAME);
 	    final StreamHandlerImpl magicStreamHandler =
@@ -90,7 +91,7 @@ public class SensorsPlugin implements FlutterPlugin {
     userAccelChannel.setStreamHandler(null);
     gyroscopeChannel.setStreamHandler(null);
     magnetometerChannel.setStreamHandler(null);
-    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
     	magicChannel.setStreamHandler(null);
     }
   }
