@@ -63,6 +63,6 @@ abstract class SensorsPlatform extends PlatformInterface {
 
   /// A broadcast stream of events from the device magnetometer.
   Stream<MagicEvent> get magicEvents {
-    throw UnimplementedError('magicEvents xx has not been implemented.');
+    throw UnimplementedError('magicEvents has not been implemented.');
   }
 }

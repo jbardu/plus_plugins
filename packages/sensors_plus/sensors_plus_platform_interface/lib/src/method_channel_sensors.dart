@@ -82,17 +82,15 @@ class MethodChannelSensors extends SensorsPlatform {
     _magicEvents ??=
         _magicEventChannel.receiveBroadcastStream().map((dynamic event) {
       final list = event.cast<double>();
-	if (list.length < 8) {
+	print("empty magic event");
 	      return MagicEvent(
-				list[0]!, list[1]!, list[2]!,
+				0.0, 0.0, 0.0,
 				0.0, 0.0, 0.0,
 				0.0, 0.0, 0.0, 0.0);
-	} else {
-	      return MagicEvent(
+/*	      return MagicEvent(
 				list[0]!, list[1]!, list[2]!,
 				list[3]!, list[4]!, list[5]!,
-				list[6]!, list[7]!, list[8]!, list[9]!);
-	}
+				list[6]!, list[7]!, list[8]!, list[9]!); */
     });
     return _magicEvents!;
   }
