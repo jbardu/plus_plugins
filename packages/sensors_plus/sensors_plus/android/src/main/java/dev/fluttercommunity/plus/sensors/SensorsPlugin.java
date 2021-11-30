@@ -61,18 +61,20 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
 
     return new SensorEventListener() {
       @Override
-      public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+      public void onAccuracyChanged(Sensor sensor, int accuracy) {
+      }
 
       @Override
       public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
           System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.length);
+	  //Log.d("myTag", String.format("acc %f,%f,%f", event.values[0], event.values[1], event.values[2]));
         } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
+          System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
+	  ////Log.d("myTag", String.format("mag %f,%f,%f", event.values[0], event.values[1], event.values[2]));
         }
       }
     };
-
   };
 
   SensorEventListener createSensorEventListener(final EventChannel.EventSink events) {
