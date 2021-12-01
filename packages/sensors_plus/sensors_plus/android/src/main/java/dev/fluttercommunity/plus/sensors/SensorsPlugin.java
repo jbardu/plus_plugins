@@ -37,7 +37,8 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
     this.sensorManager = sensorManager;
 
     sensor = sensorManager.getDefaultSensor(sensorType);
-    accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    //accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
     magneticfield = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
   }
 
@@ -66,7 +67,8 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
 
       @Override
       public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        //if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
 	  accelerometerReading[0] = accelerometerReading[0] * 0.9f + event.values[0] * 0.1f;
 	  accelerometerReading[1] = accelerometerReading[1] * 0.9f + event.values[1] * 0.1f;
 	  accelerometerReading[2] = accelerometerReading[2] * 0.9f + event.values[2] * 0.1f;
