@@ -37,9 +37,10 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
     this.sensorManager = sensorManager;
 
     sensor = sensorManager.getDefaultSensor(sensorType);
-    //accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-    accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+    accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    //accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
     magneticfield = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+    //magneticfield = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
   }
 
   @Override
@@ -67,21 +68,23 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
 
       @Override
       public void onSensorChanged(SensorEvent event) {
-        //if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-        if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-	  accelerometerReading[0] = accelerometerReading[0] * 0.9f + event.values[0] * 0.1f;
-	  accelerometerReading[1] = accelerometerReading[1] * 0.9f + event.values[1] * 0.1f;
-	  accelerometerReading[2] = accelerometerReading[2] * 0.9f + event.values[2] * 0.1f;
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+	  accelerometerReading[0] = accelerometerReading[0] * 0.98f + event.values[0] * 0.02f;
+	  accelerometerReading[1] = accelerometerReading[1] * 0.98f + event.values[1] * 0.02f;
+	  accelerometerReading[2] = accelerometerReading[2] * 0.98f + event.values[2] * 0.02f;
 
-          System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.length);
+          //System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.length);
 	  //Log.d("myTag", String.format("acc %f,%f,%f", event.values[0], event.values[1], event.values[2]));
+	  //Log.d("myTag", String.format("acc %f", accelerometerReading[0]));
+        //} else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
         } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-	  magnetometerReading[0] = magnetometerReading[0] * 0.9f + event.values[0] * 0.1f;
-	  magnetometerReading[1] = magnetometerReading[1] * 0.9f + event.values[1] * 0.1f;
-	  magnetometerReading[2] = magnetometerReading[2] * 0.9f + event.values[2] * 0.1f;
 
-          System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
-	  ////Log.d("myTag", String.format("mag %f,%f,%f", event.values[0], event.values[1], event.values[2]));
+	  magnetometerReading[0] = magnetometerReading[0] * 0.9f + event.values[0] * 0.10f;
+	  magnetometerReading[1] = magnetometerReading[1] * 0.9f + event.values[1] * 0.10f;
+	  magnetometerReading[2] = magnetometerReading[2] * 0.9f + event.values[2] * 0.10f;
+
+	  //Log.d("myTag", String.format("mag %f,%f,%f", magnetometerReading[0], event.values[1], event.values[2]));
+          //System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.length);
         }
       }
     };
