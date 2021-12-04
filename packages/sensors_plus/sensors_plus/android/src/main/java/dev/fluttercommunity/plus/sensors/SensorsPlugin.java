@@ -32,6 +32,7 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
   private final float[] rotationMatrix = new float[9];
   private final float[] accelerometerReading = new float[3];
   private final float[] magnetometerReading = new float[3];
+  private int failure = 0;
 
   StreamHandlerImpl2(SensorManager sensorManager, int sensorType) {
     this.sensorManager = sensorManager;
@@ -41,16 +42,39 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
     //accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
     magneticfield = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     //magneticfield = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+    if (sensor == null) {
+	 Log.d("myTag", "Failed to start rotation sensors");
+	 failure = 1;
+    }
+    if (accelerometer == null) {
+	 Log.d("myTag", "Failed to find accel sensor");
+	 failure = 2;
+    }
+    if (magneticfield == null) {
+	 Log.d("myTag", "Failed to find magfield sensor");
+	 failure = 3;
+    }
   }
 
   @Override
   public void onListen(Object arguments, EventChannel.EventSink events) {
     sensorEventListener = createSensorEventListener(events);
-    listener1 = createOther(events);
-
     sensorManager.registerListener(sensorEventListener, sensor, sensorManager.SENSOR_DELAY_GAME);
+ 
+    listener1 = createOther(events);
     sensorManager.registerListener(listener1, accelerometer, sensorManager.SENSOR_DELAY_GAME);
     sensorManager.registerListener(listener1, magneticfield, sensorManager.SENSOR_DELAY_GAME);
+
+    if (failure > 0) {
+        double[] t = new double[9];
+        for (int i = 0; i < 9; i++) {
+		t[i] = -1.0;
+	}
+	t[8] = failure;
+	Log.d("myTag", "signal failure mode");
+    	events.success(t);
+    }
+
   }
 
   @Override
@@ -100,6 +124,7 @@ class StreamHandlerImpl2 implements EventChannel.StreamHandler {
       public void onSensorChanged(SensorEvent event) {
         SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading);
         double[] sensorValues = new double[rotationMatrix.length];
+
 	// Should invert the matrix to match IOS here.
         for (int i = 0; i < rotationMatrix.length; i++) {
           sensorValues[i] = rotationMatrix[i];
@@ -169,17 +194,12 @@ public class SensorsPlugin implements FlutterPlugin {
         new StreamHandlerImpl( (SensorManager) context.getSystemService(Context.SENSOR_SERVICE), Sensor.TYPE_MAGNETIC_FIELD);
     magnetometerChannel.setStreamHandler(magnetometerStreamHandler);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-	    magicChannel = new EventChannel(messenger, MAGIC_CHANNEL_NAME);
-	    final StreamHandlerImpl2 magicStreamHandler =
-		new StreamHandlerImpl2(
-		    (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
-		    Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
-	    magicChannel.setStreamHandler(magicStreamHandler);
-
-    } else {
-    	   Log.d("myTag", "SDK not KitKat or greater for rotation matrix");
-    }
+    magicChannel = new EventChannel(messenger, MAGIC_CHANNEL_NAME);
+    final StreamHandlerImpl2 magicStreamHandler =
+	new StreamHandlerImpl2(
+	    (SensorManager) context.getSystemService(Context.SENSOR_SERVICE),
+	    Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
+    magicChannel.setStreamHandler(magicStreamHandler);
   }
 
   private void teardownEventChannels() {
@@ -187,8 +207,6 @@ public class SensorsPlugin implements FlutterPlugin {
     userAccelChannel.setStreamHandler(null);
     gyroscopeChannel.setStreamHandler(null);
     magnetometerChannel.setStreamHandler(null);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-    	magicChannel.setStreamHandler(null);
-    }
+    magicChannel.setStreamHandler(null);
   }
 }
