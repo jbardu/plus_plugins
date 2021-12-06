@@ -107,11 +107,11 @@ CLLocationManager* _locManager;
     if(self != nil) {
         self.locationManager = [[CLLocationManager alloc] init];
 
-	if (0) {
+	/* if (0) {
 		self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
 		self.locationManager.distanceFilter = 100; // meters
 		self.locationManager.delegate = self;
-	} else {
+	} else { */
 		if (@available(iOS 9, *)) {
 		    //self.locationManager.allowsBackgroundLocationUpdates = true;
 		}
@@ -124,7 +124,7 @@ CLLocationManager* _locManager;
 		    //self.locationManager.showsBackgroundLocationIndicator = true;
 		}
 		self.locationManager.delegate = self;
-	}
+	/*  } */
 
         // locationManager.startMonitoringSignificantLocationChanges()
 
@@ -165,7 +165,6 @@ CLLocationManager* _locManager;
 
     NSLog(@"\nlat %+.6f, long %+.6f (true/mag %+.6f %+.6f) headingAccuracy %+.6f\n",
           location.coordinate.latitude,
-          location.coordinate.longitude,
           location.coordinate.longitude,
 	  h1,
 	  h2,
