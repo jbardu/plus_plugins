@@ -4,6 +4,7 @@
 
 #import "FLTSensorsPlusPlugin.h"
 #import <CoreMotion/CoreMotion.h>
+#import <CoreLocation/CoreLocation.h>
 #import <GLKit/GLKit.h>
 
 @implementation FLTSensorsPlusPlugin
@@ -51,18 +52,159 @@ const double GRAVITY = 9.8;
 
 CMMotionManager* _motionManager;
 
+
+/*
+CLLocationManager* _locManager;
+
+@interface MyClass NSObject <CLLocationManagerDelegate>
+
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, weak) id delegate;
+
+@end
+
+@implementation MyClass
+// called when location is updated
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
+    NSDate* eventDate = newLocation.timestamp;
+    NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
+
+   //[self.locationManager stopUpdatingLocation];
+   //[self finalizeLocationSearch];
+}
+
+@end
+*/
+
+@interface LocationService : NSObject <CLLocationManagerDelegate>
+
++(LocationService *) sharedInstance;
+
+@property (strong, nonatomic) CLLocationManager *locationManager;
+@property (strong, nonatomic) CLLocation *currentLocation;
+
+- (void)startUpdatingLocation;
+
+- (void)stopUpdatingLocation;
+
+@end
+
+@implementation LocationService
+
++(LocationService *) sharedInstance
+{
+    static LocationService *instance = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc]init];
+    });
+    return instance;
+}
+
+- (id)init {
+    self = [super init];
+    if(self != nil) {
+        self.locationManager = [[CLLocationManager alloc] init];
+
+	if (0) {
+		self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+		self.locationManager.distanceFilter = 100; // meters
+		self.locationManager.delegate = self;
+	} else {
+		if (@available(iOS 9, *)) {
+		    //self.locationManager.allowsBackgroundLocationUpdates = true;
+		}
+		self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
+		self.locationManager.distanceFilter = kCLDistanceFilterNone;
+		self.locationManager.headingFilter = kCLHeadingFilterNone;
+		self.locationManager.pausesLocationUpdatesAutomatically = true;
+		//self.locationManager.activityType = .otherNavigation;
+		if (@available(iOS 11.0, *)) {
+		    //self.locationManager.showsBackgroundLocationIndicator = true;
+		}
+		self.locationManager.delegate = self;
+	}
+
+        // locationManager.startMonitoringSignificantLocationChanges()
+
+    	NSLog(@"\nStarting location updates AA");
+	[self.locationManager startUpdatingLocation];
+	[self.locationManager startUpdatingHeading];
+    }
+    return self;
+}
+
+- (void)startUpdatingLocation
+{
+    NSLog(@"\nStarting location updates BB");
+    [self.locationManager startUpdatingLocation];
+    [self.locationManager startUpdatingHeading];
+}
+
+- (void)stopUpdatingLocation
+{
+    NSLog(@"\nStopping location updates BB");
+    [self.locationManager stopUpdatingLocation];
+    [self.locationManager stopUpdatingHeading];
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+       didFailWithError:(NSError *)error
+{
+    NSLog(@"\nLocation service failed with error %@", error);
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+     didUpdateLocations:(NSArray*)locations
+{
+    CLLocation *location = [locations lastObject];
+    CLLocationDirection accuracy = [[manager heading] headingAccuracy];
+    CLLocationDirection h1 = [[manager heading] trueHeading];
+    CLLocationDirection h2 = [[manager heading] magneticHeading];
+
+    NSLog(@"\nlat %+.6f, long %+.6f (true/mag %+.6f %+.6f) headingAccuracy %+.6f\n",
+          location.coordinate.latitude,
+          location.coordinate.longitude,
+          location.coordinate.longitude,
+	  h1,
+	  h2,
+	  accuracy);
+
+    self.currentLocation = location;
+}
+
+- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager
+{
+    CLLocationDirection accuracy = [[manager heading] headingAccuracy];
+
+    if (accuracy <= 0.0f || accuracy > 5.0f) {
+    	    NSLog(@"\nCABLIBRATION go ahead compass accuracy %+.6f (less than or equal 0 or > 5 degrees)\n", accuracy);
+	    return true;
+    }
+    NSLog(@"\nCABLIBRATION NOT NEEDED ACCURACY %+.6f\n", accuracy);
+    return false;
+}
+
+@end
+
+LocationService* _myManager;
+
 void _initMotionManager() {
+
   if (!_motionManager) {
     _motionManager = [[CMMotionManager alloc] init];
+    _motionManager.showsDeviceMovementDisplay = YES;
 
+    //
     //_motionManager.deviceMotionUpdateInterval = 1/30.0;
-    //_motionManager.showsDeviceMovementDisplay = YES;
-
     // _motionManager.startDeviceMotionUpdates(using: CMAttitudeReferenceFrame.xMagneticNorthZVertical);
-
     //if (([CMMotionManager availableAttitudeReferenceFrames] & CMAttitudeReferenceFrameXTrueNorthZVertical) != 0) {
-	//
+    //
     //}
+    _myManager = [LocationService sharedInstance];
+
+    NSLog(@"\ninit motion manager location=%@", [LocationService sharedInstance].currentLocation);
   }
 }
 
@@ -199,6 +341,8 @@ static void sendMat(CMRotationMatrix m, double h, FlutterEventSink sink) {
 
   //CMMotionManager* _motionManager = [[CMMotionManager alloc] init];
 
+  NSLog(@"Magic start");
+
   _initMotionManager();
 
 	// motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
@@ -226,6 +370,7 @@ static void sendMat(CMRotationMatrix m, double h, FlutterEventSink sink) {
 
 - (FlutterError*)onCancelWithArguments:(id)arguments {
   [_motionManager stopDeviceMotionUpdates];
+  [_myManager stopUpdatingLocation];
   return nil;
 }
 
