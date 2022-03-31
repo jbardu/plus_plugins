@@ -153,6 +153,8 @@ CLLocationManager* _locManager;
        didFailWithError:(NSError *)error
 {
     NSLog(@"\nLocation service failed with error %@", error);
+    [self.locationManager stopUpdatingLocation];
+    [self.locationManager stopUpdatingHeading];
 }
 
 - (void)locationManager:(CLLocationManager *)manager
@@ -349,8 +351,8 @@ static void sendMat(CMRotationMatrix m, double h, FlutterEventSink sink) {
   [_motionManager startDeviceMotionUpdatesUsingReferenceFrame: CMAttitudeReferenceFrameXTrueNorthZVertical
                                                       toQueue: [[NSOperationQueue alloc] init]
                                       		  withHandler:^(CMDeviceMotion* motion, NSError* error) {
-
 					  if (error) {
+
 					  } else {
 					    float attitudeYaw = motion.attitude.yaw * 180.0 / 3.1415;
 					    float attitudeRoll = motion.attitude.roll * 180.0 / 3.1415;
